@@ -12,7 +12,7 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
   root: {
     width: '100%',
-    marginTop: theme.spacing.unit * 3,
+    marginTop: theme.spacing(3),
     overflowX: "auto"
   },
   table: {
@@ -20,35 +20,32 @@ const styles = theme => ({
   }
 })
 
-const customers = [
-  {
-    'id' : 1,
-    'image' : 'http://placeimg.com/64/64/1',
-    'name' : '홍길동',
-    'birthday' : 961222,
-    'gender' : '남자',
-    'job' : '대학생'
-  },
-  {
-    'id' : 2,
-    'image' : 'http://placeimg.com/64/64/2',
-    'name' : '이순신',
-    'birthday' : 931222,
-    'gender' : '남자',
-    'job' : '포토그래퍼'
-  },
-  {
-    'id' : 3,
-    'image' : 'http://placeimg.com/64/64/3',
-    'name' : '대장금',
-    'birthday' : 941222,
-    'gender' : '여자',
-    'job' : '디자이너'
-  }
-]
-
-
 class App extends Component{
+    state = {
+      // Component 내에서 변경될 수 있는 데이터를 담을 때 쓰는 변수
+      // Component 내에서 props는 변경될 수 없는 데이터를 담을 때!
+
+      customers: ""
+    }
+
+    componentDidMount() {
+      // API서버에 접근해서 데이터를 받아오는 등의 작업을 하는 라이브러리
+      // 모든 컴포넌트의 Mount가 완료되었을 때 실행됨.
+
+      this.callApi() // api불러오기
+        .then(res => this.setState({customers: res}))  
+        // callApi에서 return받은 데이터를 res에 담은 후 --> setState. state로 만들어 --> customers 변수에 담기
+        .catch(err => console.log(err)); 
+        // 오류가 발생햇을 경우 콘솔창 표시
+    }
+
+    callApi = async () => {
+      //비동기적으로 내용을 수행할 수 있도록 만들기.
+      const response = await fetch("/api/customers"); //접속하고자 하는 api 주소 넣기
+      const body = await response.json(); //위에서 받아온 데이터를 json 형태로 가져오기
+      return body;
+    }
+
     render() {
       const { classes } = this.props;
       return (
@@ -65,9 +62,9 @@ class App extends Component{
               </TableRow>
             </TableHead>
             <TableBody>
-              { customers.map(c => 
+              { this.state.customers ? this.state.customers.map(c => 
                   { return( <Customer key={c.id} id={c.id} name={c.name} image={c.image} gender={c.gender} birthday={c.birthday} job={c.job} /> ) }
-                ) }
+                ) : "" }
             </TableBody>
           </Table>
         </Paper>
