@@ -8,6 +8,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import { withStyles } from '@material-ui/core/styles';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const styles = theme => ({
   root: {
@@ -17,21 +18,24 @@ const styles = theme => ({
   },
   table: {
     minWidth: 1080
+  },
+  progress : {
+    margin : theme.spacing(2)
   }
 })
 
+
 class App extends Component{
     state = {
-      // Component 내에서 변경될 수 있는 데이터를 담을 때 쓰는 변수
-      // Component 내에서 props는 변경될 수 없는 데이터를 담을 때!
-
-      customers: ""
+      customers: "",
+      completed: 0
     }
 
     componentDidMount() {
       // API서버에 접근해서 데이터를 받아오는 등의 작업을 하는 라이브러리
       // 모든 컴포넌트의 Mount가 완료되었을 때 실행됨.
 
+      this.timer = setInterval(this.progress, 20);    // 0.02 초마다 반복되면서 progress 함수가 실행되도록 하기
       this.callApi() // api불러오기
         .then(res => this.setState({customers: res}))  
         // callApi에서 return받은 데이터를 res에 담은 후 --> setState. state로 만들어 --> customers 변수에 담기
@@ -46,8 +50,14 @@ class App extends Component{
       return body;
     }
 
+    progress = () => {
+      const { completed } = this.state;
+      this.setState( { completed: completed >= 100 ? 0 : completed+1 } )
+    }
+
     render() {
       const { classes } = this.props;
+      
       return (
         <Paper className={classes.root}>
           <Table className={classes.table}>
@@ -64,7 +74,13 @@ class App extends Component{
             <TableBody>
               { this.state.customers ? this.state.customers.map(c => 
                   { return( <Customer key={c.id} id={c.id} name={c.name} image={c.image} gender={c.gender} birthday={c.birthday} job={c.job} /> ) }
-                ) : "" }
+                ) : 
+                <TableRow>
+                  <TableCell colspan="6" align="center">
+                    <CircularProgress className={classes.progress} variant="determinate" value={this.state.completed}></CircularProgress>
+                  </TableCell>
+                </TableRow>
+                }
             </TableBody>
           </Table>
         </Paper>
