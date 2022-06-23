@@ -25,6 +25,8 @@ const connection = mysql.createConnection({
 connection.connect();
 //////////////////////////////
 
+const multer = require('multer');   // 파일을 받아 저장해주는 라이브러리. 파일을 받으면서 자동으로 파일명을 고유한 이름으로 변경해줌
+const upload = multer({dest: './upload'})   // 파일을 업로드할 폴더 설정
 
 app.get('/api/customers', (req, res) => {
     connection.query(
@@ -36,6 +38,21 @@ app.get('/api/customers', (req, res) => {
 });
 
 
+app.use('/image', express.static('./upload')) // 파일 폴더를 사용자와 공유하기 위함. '/image'로 접근하면 파일을 볼 수 있다.
+app.post('/api/customers', upload.single('image'), (req, res) => {
+    let sql = 'INSERT INTO CUSTOMER VALUES (null, ?, ?, ?, ?, ?)';
+    let image = '/image/' + req.file.filename   // 파일명을 DB에 넣기위해 문자열 화 하기
+    let name = req.body.name;
+    let birthday = req.body.birthday;
+    let gender = req.body.gender;
+    let job = req.body.job;
+    let params = [image, name, birthday, gender, job]; // 쿼리에 들어갈 데이터 순서대로 지정
+
+    connection.query(sql, params, (err, rows, fields) => {
+        res.send(rows);
+    })
+
+})
 
 app.listen(port, () => console.log(`Listening on port ${port} !`));
 

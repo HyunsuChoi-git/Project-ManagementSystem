@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
 import Customer from './components/Customer';
+import CustomerAdd from './components/CustomerAdd';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableHead from '@material-ui/core/TableHead';
@@ -59,31 +60,34 @@ class App extends Component{
       const { classes } = this.props;
       
       return (
-        <Paper className={classes.root}>
-          <Table className={classes.table}>
-            <TableHead>
-              <TableRow>
-                <TableCell>번호</TableCell>
-                <TableCell>이미지</TableCell>
-                <TableCell>이름</TableCell>
-                <TableCell>생년월일</TableCell>
-                <TableCell>성별</TableCell>
-                <TableCell>직업</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              { this.state.customers ? this.state.customers.map(c => 
-                  { return( <Customer key={c.id} id={c.id} name={c.name} image={c.image} gender={c.gender} birthday={c.birthday} job={c.job} /> ) }
-                ) : 
+        <div>
+          <Paper className={classes.root}>
+            <Table className={classes.table}>
+              <TableHead>
                 <TableRow>
-                  <TableCell colspan="6" align="center">
-                    <CircularProgress className={classes.progress} variant="determinate" value={this.state.completed}></CircularProgress>
-                  </TableCell>
+                  <TableCell>번호</TableCell>
+                  <TableCell>이미지</TableCell>
+                  <TableCell>이름</TableCell>
+                  <TableCell>생년월일</TableCell>
+                  <TableCell>성별</TableCell>
+                  <TableCell>직업</TableCell>
                 </TableRow>
-                }
-            </TableBody>
-          </Table>
-        </Paper>
+              </TableHead>
+              <TableBody>
+                { this.state.customers ? this.state.customers.map(c => 
+                    { return( <Customer key={c.id} id={c.id} name={c.name} image={c.image} gender={c.gender} birthday={c.birthday} job={c.job} /> ) }
+                  ) : 
+                  <TableRow>
+                    <TableCell colSpan="6" align="center">
+                      <CircularProgress className={classes.progress} variant="determinate" value={this.state.completed}></CircularProgress>
+                    </TableCell>
+                  </TableRow>
+                  }
+              </TableBody>
+            </Table>
+          </Paper>
+          <CustomerAdd/>
+        </div>
             // 출력하고자 하는 데이터를 컴포넌트에 보내준다.
 
             // map 함수를 이용하여 배열 형태의 반복되는 데이터를 추출할 수 있다.
