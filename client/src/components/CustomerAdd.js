@@ -21,6 +21,8 @@ class CustomerAdd extends React.Component {
         this.addCustomer() 
             .then((response) => {
                 console.log(response.data);
+                //고객정보 업데이트 시, 페이징하지 않고 고객정보를 다시 불러와 업데이트 하는 방법으로 single page application 구현
+                this.props.stateRefresh();
             });
             this.setState({ // 변수 초기화
                 file: null,  
@@ -30,8 +32,9 @@ class CustomerAdd extends React.Component {
                 job : '',
                 filename : ''
             })
-        window.location.reload();
+        //window.location.reload();
 
+        
     }
 
     handelFileChange = (e) => {

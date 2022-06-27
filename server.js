@@ -26,7 +26,7 @@ connection.connect();
 //////////////////////////////
 
 const multer = require('multer');   // 파일을 받아 저장해주는 라이브러리. 파일을 받으면서 자동으로 파일명을 고유한 이름으로 변경해줌
-const upload = multer({dest: './upload'})   // 파일을 업로드할 폴더 설정
+const upload = multer({dest: './upload'})   // 받은 파일을 지정한 폴더에 저장
 
 app.get('/api/customers', (req, res) => {
     connection.query(
