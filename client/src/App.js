@@ -8,22 +8,101 @@ import TableHead from '@material-ui/core/TableHead';
 import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
-import { withStyles } from '@material-ui/core/styles';
+import { fade, withStyles } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-const styles = theme => ({
-  root: {
-    width: '100%',
-    marginTop: theme.spacing(3),
-    overflowX: "auto"
-  },
-  table: {
-    minWidth: 1080
-  },
-  progress : {
-    margin : theme.spacing(2)
-  }
-})
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import IconButton from '@material-ui/core/IconButton';
+import Typography from '@material-ui/core/Typography';
+import InputBase from '@material-ui/core/InputBase';
+import MenuIcon from '@material-ui/icons/Menu';
+import SearchIcon from '@material-ui/icons/Search';
+
+
+function styles(theme) {
+  return ({
+    root: {
+      width: '100%',
+      marginTop: theme.spacing(3),
+      minwidth:1080 //overflowX: "auto"min
+    },
+    menu: {
+      marginTop: 8,
+      marginBottom: 8,
+      display: 'flex',
+      justifyContent: 'center'
+    },
+    paper: {
+      marginLeft: 8,
+      marginRight: 8,
+    },
+    tableHead: {
+      fontSize: '1.0rem'
+    },
+    progress: {
+      margin: theme.spacing(2)
+    },
+    grow: {
+      flexGrow: 1,
+    },
+    menuButton: {
+      marginLeft: -12,
+      marginRight: 20,
+    },
+    title: {
+      display: 'none',
+      [theme.breakpoints.up('sm')]: {
+        display: 'block',
+      }
+    },
+    search: {
+      position: 'relative',
+      borderRadius: theme.shape.borderRadius,
+      backgroundColer: fade(theme.palette.common.white, 0.15),
+      '&:hover': {
+        backgroundColer: fade(theme.palette.common.white, 0.25),
+      },
+      marginLeft: 0,
+      width: '100%',
+      [theme.breakpoints.up('sm')]: {
+        marginLeft: theme.spacing.unit,
+        with: 'auto',
+      },
+    },
+    searchIcon: {
+      width: theme.spacing.unit*9,
+      height: '100%',
+      position: 'absolute',
+      pointerEvents: 'none',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    inputRoot: {
+      color: 'inherit',
+      width: '100%',
+    },
+    inputInput: {
+      paddingTop: theme.spacing.unit,
+      paddingRight: theme.spacing.unit,
+      paddingBottom: theme.spacing.unit,
+      paddingLeft: theme.spacing.unit*10,
+      transition: theme.transitions.create('width'),
+      width: '100%',
+      [theme.breakpoints.up('sm')]: {
+        width: 120,
+        '&:focus': {
+          width: 200,
+        }
+      }
+    }
+
+  });
+}
+
+
+
 
 
 class App extends Component{
@@ -31,14 +110,22 @@ class App extends Component{
       super(props);
       this.state = {
         customers : '',
-        completed : 0
+        completed : 0,
+        searchKeyword : '',
       }
+    }
+
+    handleValueChange = (e) => {
+      let nextState = {};
+      nextState[e.target.name] = e.target.value;
+      this.setState(nextState);
     }
 
     stateRefresh = () => {
       this.setState({
         customers : '',
-        completed : 0
+        completed : 0,
+        searchKeyword : '',
       });
       this.callApi() // api불러오기
         .then(res => this.setState({customers: res}))  
@@ -73,37 +160,70 @@ class App extends Component{
     }
 
     render() {
+      //검색키워드가 있을 때에는 검색데이터만. 아닐경우 전체.
+      const filteredComponents = (data) => {
+        data = data.filter((c) => {
+          return c.name.indexOf(this.state.searchKeyword) > -1; //사용자가 검색한 키워드가 파라미터로 받은 data내에 존재하면 그 데이터만 출력되도록 data변수 초기화
+        });
+        return data.map(c => { return (<Customer stateRefresh={this.stateRefresh} key={c.id} id={c.id} name={c.name} image={c.image} gender={c.gender} birthday={c.birthday} job={c.job} />); 
+        });
+      }
+
       const { classes } = this.props;
+      const cellList = ["번호", "이미지", "이름", "생년월일", "성별","직업","설정"]
       
       return (
-        <div>
-          <Paper className={classes.root}>
+        <div className={classes.root}>
+          <AppBar position="static">
+            <Toolbar>
+              <IconButton className={classes.menuButton} color="inherit" aria-label="open drawer">
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h6" color="inherit" noWrap >
+                고객 정보 시스템
+              </Typography>
+              <div className={classes.grow} />
+              <div className={classes.search} >
+                <div className={classes.searchIcon} >
+                  <SearchIcon />
+                </div>
+                <InputBase 
+                  placeholder='Search..' 
+                  classes={{
+                    root: classes.inputRoot,
+                    input: classes.inputInput,
+                  }}
+                  name='searchKeyword'  // 실제 입력된 키워드
+                  value={this.state.searchKeyword} 
+                  onChange={this.handleValueChange} />
+              </div>
+            </Toolbar>
+          </AppBar>
+          <div className={classes.menu}>
+            <CustomerAdd stateRefresh={this.stateRefresh} />
+          </div>
+          <Paper className={classes.paper}>
             <Table className={classes.table}>
               <TableHead>
                 <TableRow>
-                  <TableCell>번호</TableCell>
-                  <TableCell>이미지</TableCell>
-                  <TableCell>이름</TableCell>
-                  <TableCell>생년월일</TableCell>
-                  <TableCell>성별</TableCell>
-                  <TableCell>직업</TableCell>
-                  <TableCell>설정</TableCell>
+                  {cellList.map(c => {
+                    return <TableCell className={classes.tableHead}>{c}</TableCell>
+                  })}
+                  
                 </TableRow>
               </TableHead>
               <TableBody>
-                { this.state.customers ? this.state.customers.map(c => 
-                    { return( <Customer stateRefresh={this.stateRefresh} key={c.id} id={c.id} name={c.name} image={c.image} gender={c.gender} birthday={c.birthday} job={c.job} /> ) }
-                  ) : 
+                {this.state.customers ? 
+                  filteredComponents(this.state.customers) : 
                   <TableRow>
                     <TableCell colSpan="6" align="center">
                       <CircularProgress className={classes.progress} variant="determinate" value={this.state.completed}></CircularProgress>
                     </TableCell>
-                  </TableRow>
-                  }
+                  </TableRow>}
               </TableBody>
             </Table>
           </Paper>
-          <CustomerAdd stateRefresh={this.stateRefresh}/>
+          
         </div>
             // 출력하고자 하는 데이터를 컴포넌트에 보내준다.
 
